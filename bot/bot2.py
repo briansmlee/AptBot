@@ -38,7 +38,23 @@ class Bot(object):
         # We'll use this dictionary to store the state of each message object.
         # In a production envrionment you'll likely want to store this more
         # persistantly in  a database.
-        self.messages = {}
+        # self.messages = {}
+
+        self.serializer = Serializer()
+        self.AT_BOT = "<@" + BOT_ID ">"
+        self.commands = {
+            'group': 'information about the APT group(s) containing the given name',
+            'tool': 'list of APT groups that use the given tool',
+            'target': 'list of APT groups that target the given asset or organization',
+            'ops': 'list of APT group that executed the given operation'
+        }
+
+        path = '../data/APT_dict.pkl'
+        with open(self.pkl_path, 'rb') as f:
+            self.gid_to_group = pickle.load(f)  # dict of groups
+        with open(self.path + '', 'rb') as f:
+            self.command_to_gid = pickle.load(f)
+
 
     def auth(self, code):
         """
@@ -94,7 +110,7 @@ class Bot(object):
         """ finds each arg in appropriate APT dictionary
         and posts serialized result on Slack"""
         if command == 'help':
-            self.post_default_response()
+            return self.serializer.default_attachment(self.commands)
 
         # other commands with no args could be added later
         gids, groups= [], []
@@ -106,16 +122,6 @@ class Bot(object):
 
     def default_response(self):
         return self.serializer.default_attachment(self.commands)
-    
-
-
-
-
-
-
-
-
-
 
 
 
