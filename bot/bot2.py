@@ -80,18 +80,33 @@ class Bot(object):
         else:  # if not text or message not directed at bot, skip
             return
 
-        parsed = text.split(' ', 1)  # command and args
+        parsed = text.split(' ', 1)  # command and args (or None)
         # help command takes no arguments
         if len(parsed) == 1 and parsed[0] == 'help':
-            self.handle_command(channel, 'help')
+            response = self.handle_command(channel, 'help')
         elif len(parsed) >= 2 and parsed[0] in self.commands:  # any command with at least one arg
-            self.handle_command(channel, parsed[0], parsed[1])
+            response = self.handle_command(channel, parsed[0], parsed[1])
         else:  # invalid command
-            self.send_default_response()
+            response = self.default_response()
+
 
     def handle_command(self, channel, command, args=None):
         """ finds each arg in appropriate APT dictionary
         and posts serialized result on Slack"""
+        if command == 'help':
+            self.post_default_response()
+
+        # other commands with no args could be added later
+        gids, groups= [], []
+        for arg in args:
+            gid = self.command_to_gid[command][arg]
+            groups.append(self.gid_to_group[gid])
+
+        return self.serializer.groups_attachment(groups)
+
+    def default_response(self):
+        return self.serializer.default_attachment(self.commands)
+    
 
 
 
@@ -101,21 +116,11 @@ class Bot(object):
 
 
 
-            # do dict with function objects here...
-            if cmmd == 'group':
-                response = self.handle_group(args)
-            elif cmmd == 'tool':
-                response = self.handle_tool(args)
-            elif cmmd == 'target':
-                response = self.handle_target(args)
-            elif cmmd == 'ops':
-                response = self.handle_ops(args)
 
-        else:  # if length is 0, length 1 but not start help command, and etc
-            response = self.default_response()
 
-        self.slack_client.api_call("chat.postMessage",
-                                   channel=channel,
-                                   text=response,
-                                   as_user=True)
+
+
+
+
+
 
