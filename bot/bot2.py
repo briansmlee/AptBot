@@ -70,37 +70,38 @@ class Bot(object):
         # bot token
         self.client = SlackClient(authed_teams[team_id]["bot_token"])
 
-    def message_to_command(self, event_type, slack_event):
-        """ extracts command and channel from a message event """
-        if 'text' in slack_event.keys():
+    def handle_message_evt(self, event_type, slack_event):
+        """ checks if a valid command is directed to bot and calls command handler """
+
+        # if directed at bot, set text after the @ mention, whitespace removed
+        if 'text' in slack_event.keys() and self.at_bot in slack_event['text']:
             text, channel = slack_event['text'], slack_event['channel']
-        else:  # if message event contains no text. handle error here
-            return None, None
+            text = text.split(self.at_bot)[1].strip()
+        else:  # if not text or message not directed at bot, skip
+            return
 
-        # if message was directed to bot
-        # return text after the @ mention, whitespace removed
-        if self.at_bot in text:
-            return text.split(self.at_bot)[1].strip(), channel
-        else:
-            return None, None
+        parsed = text.split(' ', 1)  # command and args
+        # help command takes no arguments
+        if len(parsed) == 1 and parsed[0] == 'help':
+            self.handle_command(channel, 'help')
+        elif len(parsed) >= 2 and parsed[0] in self.commands:  # any command with at least one arg
+            self.handle_command(channel, parsed[0], parsed[1])
+        else:  # invalid command
+            self.send_default_response()
 
-    def handle_command(self, command, channel):
-        """ calls handlers for valid commands
+    def handle_command(self, channel, command, args=None):
+        """ finds each arg in appropriate APT dictionary
+        and posts serialized result on Slack"""
 
-            Receives commands directed at the bot and determines if they
-            are valid commands. If so, then acts on the commands. If not,
-            returns back what it needs for clarification. """
 
-        parsed = command.split(' ', 1)
 
-        if len(parsed) == 1:  # only valid if help command
-            if parsed[0].startswith('help'):
-                response = self.handle_help(True)
-            else:  # provide at least two args
-                response = self.default_response(True)
 
-        else:
-            cmmd, args = parsed
+
+
+
+
+
+            # do dict with function objects here...
             if cmmd == 'group':
                 response = self.handle_group(args)
             elif cmmd == 'tool':
@@ -109,12 +110,12 @@ class Bot(object):
                 response = self.handle_target(args)
             elif cmmd == 'ops':
                 response = self.handle_ops(args)
-            else:
-                response = self.default_response(False)
+
+        else:  # if length is 0, length 1 but not start help command, and etc
+            response = self.default_response()
 
         self.slack_client.api_call("chat.postMessage",
                                    channel=channel,
                                    text=response,
                                    as_user=True)
 
-    def
