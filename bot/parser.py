@@ -5,7 +5,7 @@
 import openpyxl as xl
 import pandas as pd
 import pickle
-
+from pprint import pprint
 
 def parse_apt():
     """ parses APT data to a list of APT groups
@@ -83,13 +83,13 @@ def map_command_to_gid(groups):
                 dct['group'][name] = gid
         if 'tools' in group.keys():
             for tool in group['tools']:
-                dct['group'][tool] = gid
+                dct['tool'][tool] = gid
         if 'targets' in group.keys():
             for target in group['targets']:
-                dct['group'][target] = gid
+                dct['target'][target] = gid
         if 'operations' in group.keys():
             for op in group['operations']:
-                dct['group'][op] = gid
+                dct['ops'][op] = gid
 
     return dct
 
