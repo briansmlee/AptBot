@@ -2,9 +2,10 @@
 """
 Python Slack Bot class for use with the pythOnBoarding app
 """
+from pprint import pprint
 import os
 import pickle
-import Serializer
+from Serializer import Serializer
 from slackclient import SlackClient
 
 # authorized teams. save this in a more persistent memory store.
@@ -29,7 +30,7 @@ class Bot:
         # client with a valid OAuth token once we have one.
         self.client = SlackClient("")
         self.serializer = Serializer()
-        self.AT_BOT = "<@" + self.oauth['client_id'] + ">"  # check
+        self.at_bot = "<@" + self.oauth['client_id'] + ">"  # check
         self.commands = {
             'group': 'information about the APT group(s) containing the given name',
             'tool': 'list of APT groups that use the given tool',
@@ -74,10 +75,14 @@ class Bot:
         checks if a valid command is directed to bot,
         calls command handler for response, and posts response on slack
         """
+        evt = slack_event['event']
         # if directed at bot, set text after the @ mention, whitespace removed
-        if 'text' in slack_event.keys() and self.at_bot in slack_event['text']:
+        print(evt.keys(), self.at_bot)
+        if 'text' in evt.keys() and self.at_bot in evt['text']:
             text, channel = slack_event['text'], slack_event['channel']
             text = text.split(self.at_bot)[1].strip()
+            pprint(text, channel)
+            return
         else:  # if not text or message not directed at bot, skip
             return
 

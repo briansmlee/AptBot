@@ -6,6 +6,7 @@
 #
 # routing layer for aptbot
 
+from pprint import pprint
 import json
 import bot2
 from flask import Flask, request, make_response, render_template
@@ -39,7 +40,8 @@ def _event_handler(event_type, slack_event):
     # Message event
     if event_type == "message":
         # user_id = slack_event["event"].get("user")
-        aptbot.handle_command(event_type, slack_event)
+        # pprint(slack_event)
+        aptbot.handle_message_evt(event_type, slack_event)
 
     # If the event_type does not have a handler
     message = "You have not added an event handler for the %s" % event_type
