@@ -71,7 +71,7 @@ class Bot(object):
         self.client = SlackClient(authed_teams[team_id]["bot_token"])
 
     def message_to_command(self, event_type, slack_event):
-        """ extracts command from a message event """
+        """ extracts command and channel from a message event """
         if 'text' in slack_event.keys():
             text, channel = slack_event['text'], slack_event['channel']
         else:  # if message event contains no text. handle error here
@@ -85,19 +85,22 @@ class Bot(object):
             return None, None
 
     def handle_command(self, command, channel):
-        """
+        """ calls handlers for valid commands
+
             Receives commands directed at the bot and determines if they
             are valid commands. If so, then acts on the commands. If not,
-            returns back what it needs for clarification.
-        """
+            returns back what it needs for clarification. """
 
-        lst = command.split(' ', 1)
-        if command.startswith('help'):
-            response = self.default_response(True)
-        elif len(lst) < 2:
-            response = "Please provide at least two arguments. Try \"@aptbot help\""
+        parsed = command.split(' ', 1)
+
+        if len(parsed) == 1:  # only valid if help command
+            if parsed[0].startswith('help'):
+                response = self.handle_help(True)
+            else:  # provide at least two args
+                response = self.default_response(True)
+
         else:
-            cmmd, args = lst
+            cmmd, args = parsed
             if cmmd == 'group':
                 response = self.handle_group(args)
             elif cmmd == 'tool':
@@ -113,3 +116,5 @@ class Bot(object):
                                    channel=channel,
                                    text=response,
                                    as_user=True)
+
+    def
