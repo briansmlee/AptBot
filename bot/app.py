@@ -7,11 +7,11 @@
 # routing layer for aptbot
 
 import json
-import bot
+import bot2
 from flask import Flask, request, make_response, render_template
 
-pyBot = bot.Bot()
-slack = pyBot.client
+aptbot = bot2.Bot()
+slack = aptbot.client
 
 app = Flask(__name__)
 
@@ -53,8 +53,8 @@ def pre_install():
     """This route renders the installation page with 'Add to Slack' button."""
     # Since we've set the client ID and scope on our Bot object, we can change
     # them more easily while we're developing our app.
-    client_id = pyBot.oauth["client_id"]
-    scope = pyBot.oauth["scope"]
+    client_id = aptbot.oauth["client_id"]
+    scope = aptbot.oauth["scope"]
     # Our template is using the Jinja templating language to dynamically pass
     # our client id and scope
     return render_template("install.html", client_id=client_id, scope=scope)
@@ -73,7 +73,7 @@ def thanks():
     # the request's parameters.
     code_arg = request.args.get('code')
     # The bot's auth method to handles exchanging the code for an OAuth token
-    pyBot.auth(code_arg)
+    aptbot.auth(code_arg)
     return render_template("thanks.html")
 
 
@@ -104,9 +104,9 @@ def hears():
     # verification token in the request matches our app's settings
 
     # KEEP
-    if pyBot.verification != slack_event.get("token"):
+    if aptbot.verification != slack_event.get("token"):
         message = "Invalid Slack verification token: %s \npyBot has: \
-                   %s\n\n" % (slack_event["token"], pyBot.verification)
+                   %s\n\n" % (slack_event["token"], aptbot.verification)
         # By adding "X-Slack-No-Retry" : 1 to our response headers, we turn off
         # Slack's automatic retries during development.
         make_response(message, 403, {"X-Slack-No-Retry": 1})
