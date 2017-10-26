@@ -23,14 +23,14 @@ def parse_apt():
     ]
     """
 
-    def parse_sheet(sheet, sheetname):
+    def parse_sheet(sheet, sheetname, sheet_idx):
         """helper to parse dataframe sheet argument to a group dict"""
 
         # set col names
         sheet.columns = sheet.iloc[0]
         sheet = sheet[2:]
 
-        for _, row in sheet.iterrows():
+        for row_idx, row in sheet.iterrows():
             group = {}
             group['country'] = sheetname
             group['names'], group['operations'] = [], []
@@ -56,25 +56,52 @@ def parse_apt():
             if not group['operations']:  # remove if no ops
                 group.pop('operations', None)
 
-            groups.append(group)
+            # store in map from gid to group
+            gid = '_'.join([str(sheet_idx), str(row_idx)])
+            groups[gid] = group
 
     path = '../data/APT.xlsx'
-    groups = []
+    groups = {}
 
     # parse each sheet in workbook using helper
     book = xl.load_workbook(path)
-    for sheetname in book.sheetnames:
+    for sheet_idx, sheetname in enumerate(book.sheetnames):
         if sheetname != 'Home' and sheetname[0] != '_':
             sheet = pd.read_excel(path, sheetname=sheetname)
-            parse_sheet(sheet, sheetname)
+            parse_sheet(sheet, sheetname, sheet_idx)
 
     return groups
 
+
+def map_command_to_gid(groups):
+    """ create second map from command arg to gid """
+    dct = {'group': {}, 'tool': {}, 'target': {}, 'ops': {}}
+    for gid, group in groups.items():
+        # bad code... embed this in parse_sheet()
+        if 'names' in group.keys():
+            for name in group['names']:
+                dct['group'][name] = gid
+        if 'tools' in group.keys():
+            for tool in group['tools']:
+                dct['group'][tool] = gid
+        if 'targets' in group.keys():
+            for target in group['targets']:
+                dct['group'][target] = gid
+        if 'operations' in group.keys():
+            for op in group['operations']:
+                dct['group'][op] = gid
+
+    return dct
+
 if __name__ == "__main__":
     groups = parse_apt()
-    with open('../data/APT_dict.pkl', 'wb') as f:
+    dct = map_command_to_gid(groups)
+    with open('../data/groups.pkl', 'wb') as f:
         pickle.dump(groups, f)
+    with open('../data/command_to_gid.pkl', 'wb') as f:
+        pickle.dump(dct, f)
     # pprint(groups)
+    # pprint(dct)
 
 
 
