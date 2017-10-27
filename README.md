@@ -17,37 +17,30 @@ target - list of APT groups that target the given asset or organization
 
 ops - list of APT group that executed the given operation
 
-The following images show how AptBot can be used:
-
-help:
-![Alt text](./images/help.jpg)
-
-group:
-![Alt text](./images/group.jpg)
-
-tool:
-![Alt text](./images/tool.jpg)
-
-target:
-![Alt text](./images/target.jpg)
-
-ops:
-![Alt text](./images/ops.jpg)
-
 ### Installing AptBot
 Since AptBot is currently not distributed on Slack, the bot must be added manually to your team.
 
-Please follow the instructions at https://www.fullstackpython.com/blog/build-first-slack-bot-python.html (prior to "Coding Our StarterBot").
+Please do the following:
+
+0) install the dependencies in requirments.txt and create virtual environment
+
+1) go to https://chatbot-example-1.slack.com/apps/new/A0F7YS25R-bots
+
+2) set bot username to be 'aptbot' and press add bot integration. This redirects to a page showing your API Token.
+
+3) export the API Token using: export BOT_TOKEN='<your API token>'
+
+4) run using: python bot.py
+
+5) open your team's slack and begin asking AptBot about Advanced Persistent Attacks by typing: @aptbot help
 
 ### ToDo
-integrate with Travis CI
+use SQL to simplify queries
 
-optimize groups data access
-
-format data to attachments
+refactor to an app and distribute
 
 ### References
-Following sources were used to build the bot:
+Following sources were used while building the bot:
 
 https://github.com/hslatman/awesome-threat-intelligence
 
