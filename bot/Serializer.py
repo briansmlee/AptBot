@@ -21,7 +21,7 @@ class Serializer:
 
     def each_group(self, group):
         """ create attachments for all groups """
-        return '\n\n'.join(['{}:\n{}'.
+        return '\n\n'.join(['*{}*:\n{}'.
                            format(k, (v if not isinstance(v, list) else ', '.join(v)))
                            for k, v in group.items()])
 

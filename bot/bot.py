@@ -46,25 +46,28 @@ class Bot:
             print("could not find bot user with the name " + self.name)
             return None
 
-    def handle_command(self, text, channel):
+    def handle_command(self, text, channel=''):
         """
         parses text and handles if valid command
         """
         parsed = text.split(' ', 1)  # command and args (can be None)
+        groups, response = {}, ''
         if len(parsed) == 1 and parsed[0] == 'help':  # help command takes no arguments
             response = self.default_response()
         elif len(parsed) == 2 and parsed[0] in self.commands:  # any valid command
             cmmd, arg = parsed
-            groups = {}
             dct = self.command_to_gid[cmmd]  # get target map
             for key, gid in dct.items():
-                if arg in key and gid not in groups.keys():
+                if arg.lower() in key.lower() and gid not in groups.keys():
                     groups[gid] = self.gid_to_group[gid]
 
             response = self.serializer.groups_response(groups)
 
         else:  # invalid command
             response = self.default_response()
+
+        if not channel:  # for testing
+            return len(groups)
 
         # post result as attachment
         self.client.api_call("chat.postMessage",
