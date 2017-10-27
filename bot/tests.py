@@ -30,4 +30,4 @@ class TestAptBot(unittest.TestCase):
         self.assertEqual(length, 1)
 
 if __name__ == '__main__':
-    bot = Bot()
+    unittest.main()
