@@ -2,9 +2,7 @@ import unittest
 from bot import Bot
 
 class TestAptBot(unittest.TestCase):
-    def __init__(self):
-        self.bot = Bot()
-
+    self.bot = Bot()
     def test_help(self):
         length = self.bot.handle_command('help')
         self.assertEqual(length, 0)
